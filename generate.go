@@ -138,7 +138,7 @@ func generateCmd(cmd *cobra.Command, args []string) {
 		path string
 		tmpl *template.Template
 	}{
-		{c.Package + ".go", templates.Lookup("db")},
+		{c.Package + "_gen.go", templates.Lookup("db")},
 	}
 	for _, f := range supportFiles {
 		err := writeTemplateFile(f.path, f.tmpl, supportData)
