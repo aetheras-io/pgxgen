@@ -18,7 +18,7 @@ const templateInsertFunc = `func Insert{{.StructName}}(ctx context.Context, db Q
 		values = append(values, args.Append(&row.{{.FieldName}}))
 	}{{end}}
 	
-	sql := fmt.Sprintf({{getTick}}insert into users(%s) values(%s) returning id{{getTick}}, strings.Join(columns, ", "), strings.Join(values, ","))  
+	sql := fmt.Sprintf({{getTick}}insert into {{.TableName}}(%s) values(%s) returning id{{getTick}}, strings.Join(columns, ", "), strings.Join(values, ","))  
 	psName := preparedName("pgxgenInsert{{.StructName}}", sql)
   
 	return prepareQueryRow(ctx, db, psName, sql, args...).Scan({{ range $i, $column := .PrimaryKeyColumns}}{{if $i}}, {{end}}&row.{{$column.FieldName}}{{end}})
@@ -90,7 +90,7 @@ const templateUpdateFunc = `func Update{{.StructName}}(ctx context.Context, db Q
 	  return nil
 	}
   
-	sql := fmt.Sprintf({{getTick}}update users set %s where id=%s{{getTick}}, strings.Join(sets, ", "), args.Append(id))  
+	sql := fmt.Sprintf({{getTick}}update {{.TableName}} set %s where id=%s{{getTick}}, strings.Join(sets, ", "), args.Append(id))  
 	psName := preparedName("pgxgenUpdate{{.StructName}}", sql)
   
 	commandTag, err := prepareExec(ctx, db, psName, sql, args...)
