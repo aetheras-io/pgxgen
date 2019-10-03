@@ -66,6 +66,15 @@ var goTypeToNullComparisonFMap = map[string]string{
 	"[]byte":    "len(%s) == 0",
 }
 
+var goTypeToComparisonFMap = map[string]string{
+	"int64":     "%s > 0",
+	"int32":     "%s > 0",
+	"int16":     "%s > 0",
+	"string":    `%s != ""`,
+	"time.Time": "%s.IsZero() !=true",
+	"[]byte":    "len(%s) != 0",
+}
+
 var acronyms = map[string]bool{
 	"id":  true,
 	"ip":  true,
@@ -316,5 +325,13 @@ func goTypeToNullComparison(fieldName string, goType string) string {
 		return fmt.Sprintf(format, fieldName)
 	} else {
 		panic("cannot find go type null comparison formatter for :" + goType)
+	}
+}
+
+func goTypeToComparison(fieldName string, goType string) string {
+	if format, ok := goTypeToComparisonFMap[goType]; ok {
+		return fmt.Sprintf(format, fieldName)
+	} else {
+		panic("cannot find go type comparison formatter for :" + goType)
 	}
 }

@@ -23,7 +23,7 @@ type Queryer interface {
 }
 
 type preparer interface {
-	Prepare(ctx context.Context, name, sql string) (*pgx.PreparedStatement, error)
+	Prepare(ctx context.Context, name, sql string) (*pgconn.StatementDescription, error)
 	Deallocate(ctx context.Context, name string) error
 }
 
@@ -69,5 +69,13 @@ func preparedName(baseName, sql string) string {
 	}
 
 	return fmt.Sprintf("%s%d", baseName, h.Sum32())
+}
+
+// pgx/v4@4.0.1
+type queryArgs []interface{}
+
+func (qa *queryArgs) Append(v interface{}) string {
+	*qa = append(*qa, v)
+	return "$" + strconv.Itoa(len(*qa))
 }
 `

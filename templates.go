@@ -13,6 +13,7 @@ func loadTemplates() *template.Template {
 	funcMap := template.FuncMap{
 		"pkPlaceholder":    pkPlaceholder,
 		"goNullComparison": goTypeToNullComparison,
+		"goComparison":     goTypeToComparison,
 		"getTick":          func() string { return "`" },
 	}
 	templates := template.New("base").Funcs(funcMap)

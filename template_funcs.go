@@ -11,9 +11,9 @@ func Count{{.StructName}}(ctx context.Context, db Queryer) (int64, error) {
 
 const templateInsertFunc = `func Insert{{.StructName}}(ctx context.Context, db Queryer, row *{{.StructName}}) error {  
 	var columns, values []string
-	args := pgx.QueryArgs(make([]interface{}, 0, {{len .Columns}}))
+	args := queryArgs(make([]interface{}, 0, {{len .Columns}}))
 	{{range .Columns}} {{$prefix := "row."}}
-	if {{ goNullComparison (print $prefix .FieldName) .GoType }} {
+	if {{ goComparison (print $prefix .FieldName) .GoType }} {
 		columns = append(columns, "{{.ColumnName}}")
 		values = append(values, args.Append(&row.{{.FieldName}}))
 	}{{end}}
@@ -80,9 +80,9 @@ const templateUpdateFunc = `func Update{{.StructName}}(ctx context.Context, db Q
 	row *{{.StructName}},
   ) error {
 	sets := make([]string, 0, {{len .Columns}})
-	args := pgx.QueryArgs(make([]interface{}, 0, {{len .Columns}}))
+	args := queryArgs(make([]interface{}, 0, {{len .Columns}}))
 	{{range .Columns}} {{$prefix := "row."}}
-	if {{ goNullComparison (print $prefix .FieldName) .GoType }} {
+	if {{ goComparison (print $prefix .FieldName) .GoType }} {
 	  sets = append(sets, "{{.ColumnName}}"+"="+args.Append(&row.{{.FieldName}}))
 	}{{end}}
 
@@ -107,7 +107,7 @@ const templateUpdateFunc = `func Update{{.StructName}}(ctx context.Context, db Q
 const templateDeleteFunc = `func Delete{{.StructName}}(ctx context.Context, db Queryer{{range .PrimaryKeyColumns}},
 	{{.VarName}} {{.GoType}}{{end}},
   ) error {
-	args := pgx.QueryArgs(make([]interface{}, 0, {{len .PrimaryKeyColumns}}))
+	args := queryArgs(make([]interface{}, 0, {{len .PrimaryKeyColumns}}))
 	sql := {{getTick}}delete from {{.TableName}} where {{ range $i, $column := .PrimaryKeyColumns}}{{getTick}} + {{getTick}}{{if $i}} and {{end}}{{$column.ColumnName}}={{getTick}} + args.Append({{$column.VarName}}){{end}}
   
 	commandTag, err := prepareExec(ctx, db, "pgxgenDelete{{.StructName}}", sql, args...)
